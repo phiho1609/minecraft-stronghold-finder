@@ -2,15 +2,6 @@ import math
 import numpy
 import time
 
-"""
-input_x1 = -9999
-input_z1 = -19999
-input_angle1 = 157.5
-
-input_x2 = -10225
-input_z2 = -20171
-input_angle2 = 165.8
-"""
 
 def main():
     DEBUG_TAG = "main: "
@@ -83,7 +74,7 @@ def shell_welcome():
 
 def calc(p1, p2):
     DEBUG_TAG = "calc: "
-    #Fixing Angles to 0 - 360
+    # Fixing Angles to 0 - 360
     if p1.angle < 0:
         p1.angle += 360
     if p2.angle < 0:
@@ -91,43 +82,24 @@ def calc(p1, p2):
 
     print(DEBUG_TAG, "angles after 0 - 360 conversion: \np1: ", p1.angle, "\np2: ", p2.angle)
 
-    """angle_diff = abs(p1.angle - p2.angle)
-    mid_angle = p1.angle + angle_diff/2 if p1.angle < p2.angle else p2.angle + angle_diff/2
-
-    #Normalise
-    angle_diff = 360 - angle_diff if angle_diff > 180 else angle_diff
-    mid_angle = mid_angle - 180 if abs(p1.angle - mid_angle) > 90 or abs(p2.angle - mid_angle) > 90 else mid_angle
-    mid_angle = 360 - mid_angle if mid_angle < 0 else mid_angle
-
-    #Check if angles can cross
-
-    plumb_line_tmp = get_plumb_line(p1, p2)
-    plumb_line = (plumb_line_tmp + 180) % 360 if abs(plumb_line_tmp - p1.angle) > 90 else plumb_line_tmp  #plumb line was on wrong side => corrected (can be checked on any angle)
-    """
-
     normalised_list = get_normalised_points(p1, p2)
-    #print(DEBUG_TAG, "returned list from get_norm_points: ", normalised_list)
+
     n_p1, n_p2 = normalised_list[0]
     rot_origin = normalised_list[1]
     rot_angle = normalised_list[2]
-    #print(DEBUG_TAG, "normalised_list: ", "origin: ", rot_origin, ", angle: ", rot_angle)
 
     print(DEBUG_TAG, "point angles after normalising: \np1: ", n_p1.angle, "\np2: ", n_p2.angle)
 
-    #if angles should point "down" -> mirror upwards
+    # if angles should point "down" -> mirror upwards
     flip = False
-    if n_p1.angle > 90 and n_p1.angle < 270:         #angles ar normalised => p1 is left  => p1.angle points down right
-        if n_p2.angle > 90 and n_p2.angle < 270:      #                        p2 is right => p2.angle points down left
+    if n_p1.angle > 90 and n_p1.angle < 270:         # angles ar normalised => p1 is left  => p1.angle points down right
+        if n_p2.angle > 90 and n_p2.angle < 270:     #                         p2 is right => p2.angle points down left
             flip = True
             print(DEBUG_TAG, "Flip is required (angles point downwards)")
         else:
             print("calc: angles got fucked up through transformation")
             return Data(0, 0, -1)
-    """    
-    if flip:
-        n_p1.angle += abs(270 - n_p1.angle) * 2 
-        n_p2.angle -= abs(90 - n_p2.angle) * 2     #90 - angle should be negative
-    """
+
     """check if lines will ever meet => otherwise no solution"""
 
     if (not flip and p1.angle >= p2.angle) or (flip and p1.angle <= p2.angle):
@@ -141,14 +113,13 @@ def calc(p1, p2):
 
     print(DEBUG_TAG, "alpha: ", alpha, "beta: ", beta, "gamma: ", gamma)
 
-    c_side = abs(n_p1.x - n_p2.x) #length of c side (p1 to p2)
-    b_side = c_side * (math.sin(math.radians(beta)) / math.sin(math.radians(gamma))) #length of b side (p1 to goal)
+    c_side = abs(n_p1.x - n_p2.x) # length of c side (p1 to p2)
+    b_side = c_side * (math.sin(math.radians(beta)) / math.sin(math.radians(gamma))) # length of b side (p1 to goal)
 
     print(DEBUG_TAG, "p1 to p2: ", c_side, ", p1 to goal: ", b_side)
 
     rel_goal_x = b_side * math.cos(math.radians(alpha))
     rel_goal_z = b_side * math.sin(math.radians(alpha))
-    #abs_goal = (rel_goal_x + n_p1.x, rel_goal_z + n_p1.z)
     print(DEBUG_TAG, "relative coords: ", rel_goal_x, ", ", rel_goal_z)
 
     """undo transformation"""
@@ -157,7 +128,7 @@ def calc(p1, p2):
     print(DEBUG_TAG, "absolute coords: ", abs_goal_x, ", ", abs_goal_z)
 
     if flip:
-        abs_goal_z = n_p1.z - rel_goal_z    #x didnt change through vertical mirroring => only mirror z
+        abs_goal_z = n_p1.z - rel_goal_z    # x didnt change through vertical mirroring => only mirror z
         print(DEBUG_TAG, "Flip was required, after flip: ", abs_goal_x, ", ", abs_goal_z)
 
     print(DEBUG_TAG, "rot_origin: ", rot_origin, ", abs_goal: ", (abs_goal_x, abs_goal_z), ", rot_angle: ", rot_angle)
@@ -185,14 +156,14 @@ def get_normalised_points(p1, p2):
     line_angle = (math.degrees(math.atan2(diff_z, diff_x)) - 90) % 360
     line_angle = line_angle + 360 if line_angle < 0 else line_angle
     print(DEBUG_TAG, "line_angle: ", line_angle)
-    #angle of [p1,p2] in degrees is ready
+    # angle of [p1,p2] in degrees is ready
 
     origin_x = p1.x + (abs(diff_x)/2) if p1.x < p2.x else p2.x + (abs(diff_x)/2)
     origin_z = p1.z + (abs(diff_z)/2) if p1.z < p2.z else p2.z + (abs(diff_z)/2)
     origin = (origin_x, origin_z)
     point_p1 = (p1.x, p1.z)
     point_p2 = (p2.x, p2.z)
-    rotation_angle = 270 - line_angle       #270° equals an horizontal line, pos rotation_angle = counterclockwise rot, neg rotation_angle = clockwise rot
+    rotation_angle = 270 - line_angle       # 270° equals an horizontal line, pos rotation_angle = counterclockwise rot, neg rotation_angle = clockwise rot
     print(DEBUG_TAG, "origin of rotation: ", origin)
     print(DEBUG_TAG, "rotation_angle: ", rotation_angle)
     print("#rotation_angle: ", rotation_angle)
@@ -277,6 +248,7 @@ def debug_transform():
     print("after transformation around origin: ", origin, "with an angle of: ", rot)
     print("Point 1: ", new_p1.x, new_p1.z)
     print("Point 2: ", new_p2.x, new_p2.z)
+
 
 
 if __name__ == "__main__":
