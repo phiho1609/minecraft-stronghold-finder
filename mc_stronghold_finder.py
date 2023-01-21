@@ -23,15 +23,15 @@ def main():
 
 
 def shell_welcome():
+    print("\n")
     print("Minecraft Stronghold Calaculator.")
-    time.sleep(2)
     print("by DrTierlieb")
-    print("\n\n")
+    print("\n")
     time.sleep(1)
-    print("You will need to input two coordinates (x,z)\nand the given angle from the thrown endereye.")
-    time.sleep(2)
-    print("Please follow the upcoming instructions and only input one number at a time.")
-    time.sleep(2)
+    print("You will need to input a coordinates (x,z)\nand the respectively given angle from two thrown endereyes.")
+    time.sleep(0.2)
+    print("Please follow the upcoming instructions.")
+    time.sleep(0.2)
 
     x1 = 0
     z1 = 0
@@ -39,31 +39,39 @@ def shell_welcome():
     x2 = 0
     z2 = 0
     angle2 = 0
+
+    def list_string2float_tuple(list_string):
+        float_tuple_str = list_string.split(',')
+        if len(float_tuple_str) != 2:
+            raise RuntimeError('Two comma-separated coordinates were expected, ' + str(len(float_tuple_str)) + " were given!" )
+
+        return (float(float_tuple_str[0]), float(float_tuple_str[1]))
+
+
     print("\n##############################################")
+    print("Go to the first point and enter the X- and Z-Coordinate, separated by a comma.")
+    time.sleep(0.2)
+    print("Coordinates of Point 1: ")
+    x1, z1 = list_string2float_tuple(input())
     time.sleep(0.5)
-    print("Point 1:")
-    time.sleep(1)
-    print("X-Coordinate:    ")
-    x1 = float(input())
-    time.sleep(0.5)
-    print("Z-Coordinate:    ")
-    z1 = float(input())
-    time.sleep(0.5)
-    print("Angle:   ")
+    print("Now don't move, throw an ender-eye and focus its final floating position with your crosshair.")
+    print("Do not move your crosshair after you have it on the final position!")
+    print("Now, with your crosshair in position, press F3. On the left side, in the second paragraph there should be a line starting with 'Facing: <north/east/south/west>...'.")
+    print("At the end of that line there are two values in parantheses. The FIRST value is the horizontal angle, the value of interest, enter that now.")
+    print("Horizontal Angle: ")
     angle1 = float(input())
     time.sleep(0.5)
 
     print("\n##############################################")
+    print("Now repeat for a second point. The further away from the first, the more precise the calculation, but 50-100 blocks seem to be enough.")
+    print("Hint: Try to choose the second point perpendicular to the trajectory direction of the first ender-eye throw.")
+    print("Now, again, enter X- and Z-Coordinate of your second point.")
+    time.sleep(0.2)
+    print("Coordinates of Point 2:")
+    x2, z2 = list_string2float_tuple(input())
     time.sleep(0.5)
-    print("Point 2:")
-    time.sleep(1)
-    print("X-Coordinate:    ")
-    x2 = float(input())
-    time.sleep(0.5)
-    print("Z-Coordinate:    ")
-    z2 = float(input())
-    time.sleep(0.5)
-    print("Angle:   ")
+    print("Throw the eye, focus with your crosshair, and read the horizontal angle.")
+    print("Horizontal Angle: ")
     angle2 = float(input())
     time.sleep(0.5)
 
