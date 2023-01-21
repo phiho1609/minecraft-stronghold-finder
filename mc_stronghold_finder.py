@@ -8,14 +8,17 @@ def main():
 
     input_1, input_2 = shell_welcome()
 
-    print(DEBUG_TAG, "input 1: ", input_1.x, input_1.z, input_1.angle)
-    print(DEBUG_TAG, "input 2: ", input_2.x, input_2.z, input_2.angle)
+    #print(DEBUG_TAG, "input 1: ", input_1.x, input_1.z, input_1.angle)
+    #print(DEBUG_TAG, "input 2: ", input_2.x, input_2.z, input_2.angle)
+
+    print("\n################ [Results] ###################")
+    print("According to the calculations, using P1{x:", input_1.x, "| z:", input_1.z, "| h-angle:", input_1.angle, "} and P2{x:", input_2.x, "| z:", input_2.z, "| h-angle:", input_2.angle, "} ...")
 
     result = calc(input_1, input_2)
     if result.angle == -1:
         print("failed.")
 
-    print("\n##############################################")
+
     print("\nThe Stronghold is at: ", int(result.x), int(result.z))
     time.sleep(1)
     print("\n\nPress Enter to close the Program...")
@@ -48,7 +51,7 @@ def shell_welcome():
         return (float(float_tuple_str[0]), float(float_tuple_str[1]))
 
 
-    print("\n##############################################")
+    print("\n################# [Point 1] ##################")
     print("Go to the first point and enter the X- and Z-Coordinate, separated by a comma.")
     time.sleep(0.2)
     print("Coordinates of Point 1: ")
@@ -62,7 +65,7 @@ def shell_welcome():
     angle1 = float(input())
     time.sleep(0.5)
 
-    print("\n##############################################")
+    print("\n################# [Point 2] ##################")
     print("Now repeat for a second point. The further away from the first, the more precise the calculation, but 50-100 blocks seem to be enough.")
     print("Hint: Try to choose the second point perpendicular to the trajectory direction of the first ender-eye throw.")
     print("Now, again, enter X- and Z-Coordinate of your second point.")
@@ -75,8 +78,6 @@ def shell_welcome():
     angle2 = float(input())
     time.sleep(0.5)
 
-    print("Now follows: Crap ton of bullshit")
-
     return (Data(x1, z1, angle1), Data(x2, z2, angle2))
 
 
@@ -88,7 +89,7 @@ def calc(p1, p2):
     if p2.angle < 0:
         p2.angle += 360
 
-    print(DEBUG_TAG, "angles after 0 - 360 conversion: \np1: ", p1.angle, "\np2: ", p2.angle)
+    #print(DEBUG_TAG, "angles after 0 - 360 conversion: \np1: ", p1.angle, "\np2: ", p2.angle)
 
     normalised_list = get_normalised_points(p1, p2)
 
@@ -96,53 +97,52 @@ def calc(p1, p2):
     rot_origin = normalised_list[1]
     rot_angle = normalised_list[2]
 
-    print(DEBUG_TAG, "point angles after normalising: \np1: ", n_p1.angle, "\np2: ", n_p2.angle)
+    #print(DEBUG_TAG, "point angles after normalising: \np1: ", n_p1.angle, "\np2: ", n_p2.angle)
 
     # if angles should point "down" -> mirror upwards
     flip = False
     if n_p1.angle > 90 and n_p1.angle < 270:         # angles ar normalised => p1 is left  => p1.angle points down right
         if n_p2.angle > 90 and n_p2.angle < 270:     #                         p2 is right => p2.angle points down left
             flip = True
-            print(DEBUG_TAG, "Flip is required (angles point downwards)")
+            #print(DEBUG_TAG, "Flip is required (angles point downwards)")
         else:
-            print("calc: angles got fucked up through transformation")
+            #print("calc: angles got fucked up through transformation")
             return Data(0, 0, -1)
 
     """check if lines will ever meet => otherwise no solution"""
 
     if (not flip and p1.angle >= p2.angle) or (flip and p1.angle <= p2.angle):
-        print("No possible solution. \nMaybe the coordinates were to close to each other?")
-        return Data(0, 0, -1)
+        raise RuntimeError('No possible solution. Did you enter the values correctly? Maybe the coordinates were to close to each other?')
 
 
     alpha = abs(270 - n_p1.angle) if abs(270 - n_p1.angle) <= 180 else 360 - abs(270 - n_p1.angle)
     beta = abs(90 - n_p2.angle) if abs(90 - n_p2.angle) <= 180 else 360 - abs(90 - n_p2.angle)
     gamma = (180 - alpha - beta) % 360
 
-    print(DEBUG_TAG, "alpha: ", alpha, "beta: ", beta, "gamma: ", gamma)
+    # print(DEBUG_TAG, "alpha: ", alpha, "beta: ", beta, "gamma: ", gamma)
 
     c_side = abs(n_p1.x - n_p2.x) # length of c side (p1 to p2)
     b_side = c_side * (math.sin(math.radians(beta)) / math.sin(math.radians(gamma))) # length of b side (p1 to goal)
 
-    print(DEBUG_TAG, "p1 to p2: ", c_side, ", p1 to goal: ", b_side)
+    # print(DEBUG_TAG, "p1 to p2: ", c_side, ", p1 to goal: ", b_side)
 
     rel_goal_x = b_side * math.cos(math.radians(alpha))
     rel_goal_z = b_side * math.sin(math.radians(alpha))
-    print(DEBUG_TAG, "relative coords: ", rel_goal_x, ", ", rel_goal_z)
+    # print(DEBUG_TAG, "relative coords: ", rel_goal_x, ", ", rel_goal_z)
 
     """undo transformation"""
     abs_goal_x = rel_goal_x + n_p1.x
     abs_goal_z = rel_goal_z + n_p1.z
-    print(DEBUG_TAG, "absolute coords: ", abs_goal_x, ", ", abs_goal_z)
+    # print(DEBUG_TAG, "absolute coords: ", abs_goal_x, ", ", abs_goal_z)
 
     if flip:
         abs_goal_z = n_p1.z - rel_goal_z    # x didnt change through vertical mirroring => only mirror z
-        print(DEBUG_TAG, "Flip was required, after flip: ", abs_goal_x, ", ", abs_goal_z)
+        # print(DEBUG_TAG, "Flip was required, after flip: ", abs_goal_x, ", ", abs_goal_z)
 
-    print(DEBUG_TAG, "rot_origin: ", rot_origin, ", abs_goal: ", (abs_goal_x, abs_goal_z), ", rot_angle: ", rot_angle)
+    # print(DEBUG_TAG, "rot_origin: ", rot_origin, ", abs_goal: ", (abs_goal_x, abs_goal_z), ", rot_angle: ", rot_angle)
     final_coords = rotate(rot_origin, (abs_goal_x, abs_goal_z), math.radians(-rot_angle))
 
-    print(DEBUG_TAG, "After Final back rotation: ", final_coords[0], ", ", final_coords[1])
+    # print(DEBUG_TAG, "After Final back rotation: ", final_coords[0], ", ", final_coords[1])
 
     return Data(final_coords[0], final_coords[1], 0)
 
@@ -163,7 +163,7 @@ def get_normalised_points(p1, p2):
     diff_z = p2.z - p1.z
     line_angle = (math.degrees(math.atan2(diff_z, diff_x)) - 90) % 360
     line_angle = line_angle + 360 if line_angle < 0 else line_angle
-    print(DEBUG_TAG, "line_angle: ", line_angle)
+    # print(DEBUG_TAG, "line_angle: ", line_angle)
     # angle of [p1,p2] in degrees is ready
 
     origin_x = p1.x + (abs(diff_x)/2) if p1.x < p2.x else p2.x + (abs(diff_x)/2)
@@ -172,23 +172,23 @@ def get_normalised_points(p1, p2):
     point_p1 = (p1.x, p1.z)
     point_p2 = (p2.x, p2.z)
     rotation_angle = 270 - line_angle       # 270° equals an horizontal line, pos rotation_angle = counterclockwise rot, neg rotation_angle = clockwise rot
-    print(DEBUG_TAG, "origin of rotation: ", origin)
-    print(DEBUG_TAG, "rotation_angle: ", rotation_angle)
-    print("#rotation_angle: ", rotation_angle)
+    # print(DEBUG_TAG, "origin of rotation: ", origin)
+    # print(DEBUG_TAG, "rotation_angle: ", rotation_angle)
+    # print("#rotation_angle: ", rotation_angle)
     normal_p1 = rotate(origin, point_p1, math.radians(rotation_angle))
-    print("#rotation_angle: ", rotation_angle)
+    # print("#rotation_angle: ", rotation_angle)
     normal_p2 = rotate(origin, point_p2, math.radians(rotation_angle))
-    print("#rotation_angle: ", rotation_angle)
+    # print("#rotation_angle: ", rotation_angle)
 
     new_p1 = Data(normal_p1[0], normal_p1[1], 0)
     new_p2 = Data(normal_p2[0], normal_p2[1], 0)
 
-    print(DEBUG_TAG, "Normalised coords: ", new_p1.x, ", ", new_p1.z, " and ", new_p2.x, ", ", new_p2.z)
+    # print(DEBUG_TAG, "Normalised coords: ", new_p1.x, ", ", new_p1.z, " and ", new_p2.x, ", ", new_p2.z)
 
     """normalize angles of p1 and p2"""
     new_p1.angle = (p1.angle + rotation_angle) % 360
     new_p2.angle = (p2.angle + rotation_angle) % 360
-    print("#rotation_angle: ", rotation_angle)
+    # print("#rotation_angle: ", rotation_angle)
 
     return [(new_p1, new_p2), origin, rotation_angle]
 
@@ -201,7 +201,7 @@ def rotate(origin, point, angle):
     The angle should be given in radians.
     """
     DEBUG_TAG = "rotate: "
-    print(DEBUG_TAG, "called with origin: ", origin, ", angle: ", math.degrees(angle), "for point: ", point)
+    # print(DEBUG_TAG, "called with origin: ", origin, ", angle: ", math.degrees(angle), "for point: ", point)
 
     ox, oy = origin
     px, py = point
