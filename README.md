@@ -4,6 +4,8 @@ _(General Note: The code is rather old, and was not refurbished, so the code qua
 
 Even though the calculation in code was more difficult than expected, the concept itself is incredibly simple. If one imagines the minecraft world seen from above, every endereye always points to the same point. If one captures two such vectors, the point of intersection can be calculated. This is where the stronghold is located.
 
+<img src="https://github.com/phiho1609/minecraft-stronghold-finder/blob/master/img/minecraft_stronghold_finder_concept_sketch1_2.png" width="50%" height="50%">
+
 
 
 ## How to use
@@ -12,6 +14,8 @@ The script is a simple python 3 file. Inputs and outputs are given through the p
 - Throw an endereye from two positions
 - For each throw, lock your crosshair on the floating position of the endereye (best **not** to be in F3-mode)
 - Leave your crosshair in this exact location, open the F3-menu and check the horizonal angle you are looking at
+<img src="https://github.com/phiho1609/minecraft-stronghold-finder/blob/master/img/minecraft_stronghold_finder_horCoord1.png" width="50%" height="50%">
+
 - Give your current location (x and z coordinate) and said horizonal angle to the script
 
 
